@@ -1,0 +1,6 @@
+node_modules
+Dockerfile
+.dockerIgnore
+.git
+index.html
+test.*

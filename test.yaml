@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-runner-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-runner-deployment-my-app
+  template:
+    metadata:
+      labels:
+        app: my-runner-deployment-my-app
+    spec:
+      containers:
+        - name: my-runner-container
+          image: my-runner-app-v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8000
+            - containerPort: 3000
+
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-runner-pod-service-my-app
+spec:
+  selector:
+    app: my-runner-deployment-my-app
+  ports:
+    - protocol: TCP
+      port: 8000        # External port exposed to clients
+      targetPort: 8000 # The internal port your container is using
+    - protocol: TCP
+      port: 3000        # External port exposed to clients
+      targetPort: 3000 # The internal port your container is using
+
+  type: NodePort
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-runner-ingress-be
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: my-app.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: my-runner-pod-service-my-app
+                port:
+                  number: 8000
+    - host: my-app.web
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: my-runner-pod-service-my-app
+                port:
+                  number: 3000
