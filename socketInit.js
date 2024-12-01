@@ -76,48 +76,24 @@ io.on('connection', (socket) => {
   ///--------terminal works
 
   newTerminal.createPty('1234', 'newreplid', (data, id) => {
-    socket.emit('cmdOutput', {
-        data: Buffer.from(data,"utf-8")
-    });
+    socket.emit('cmdOutput', data);
   });
 
 socket.on("terminalData", async (data) => {
-  newTerminal.write(socket.id, data);
+  newTerminal.write('1234', data);
 });
 
   //-----------
 
 
   socket.on('commandToExec',(command)=>{
-     // Run the command
-     console.log(command)
-    //  if (command.startsWith('cd ')) {
-    //   // Handle 'cd' command
-    //     const targetDir = command.slice(3).trim();
-    //     try {
-    //         const newDir = path.resolve(currentDirForTerm, targetDir);
-    //         process.chdir(newDir);
-    //         currentDirForTerm = process.cwd();
-    //         socket.emit('cmdOutput', { output: `Changed directory to ${currentDirForTerm}`, currentDirForTerm });
-    //     } catch (err) {
-    //       socket.emit('cmdOutput' ,`Error: ${err.message}`);
-    //     }
-    // } else {
-    //     // Execute other commands
-    //     exec(command, { cwd: currentDirForTerm }, (error, stdout, stderr) => {
-    //         if (error) {
-    //           socket.emit('cmdOutput' ,`Error: ${error.message}`);
-    //         } else if (stderr) {
-    //           socket.emit('cmdOutput' ,`Error: ${stderr.message.trim()}`);
-    //         } else {
-    //             socket.emit('cmdOutput', { output: stdout.trim(), currentDirForTerm });
-    //         }
-    //     });
-    // }
-
 
     newTerminal.write(socket.id, command);
-  })
+  });
+
+
+
+
   //---
   // Listens root folder as well as child folders
   socket.on('getDir', (path) => {

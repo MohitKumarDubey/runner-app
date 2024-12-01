@@ -1,10 +1,11 @@
 const { fork } = require('node-pty');
 
-const path = "path";
+const path = require('path');
 const os = require('os');
 
 const SHELL = os.platform() === 'win32' ? 'powershell.exe' : 'bash';
-
+// Define the path to your sibling directory "your-app"
+const cwdPath = path.join(__dirname, '..', 'your-app'); // Use relative path to reach "/your-app"
 class TerminalManager {
     sessions = {};
     constructor() {
@@ -15,10 +16,13 @@ class TerminalManager {
         let term = fork(SHELL, [], {
             cols: 100,
             name: 'xterm',
-            cwd: `/your-app`
+            cwd: cwdPath
         });
     
-        term.on('data', (data) => onData(data, term.pid));
+        term.on('data', (data) => {
+            console.log(data);
+            onData(data, term.pid)
+        });
         this.sessions[id] = {
             terminal: term,
             replId
